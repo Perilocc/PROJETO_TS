@@ -1,0 +1,16 @@
+# Node
+node_modules/
+
+# Environment variables
+.env
+
+# Prisma
+api/src/generated/prisma/
+
+# Optional: VSCode settings
+.vscode/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

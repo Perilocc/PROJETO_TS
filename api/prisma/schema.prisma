@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int       @id @default(autoincrement())
+  nome      String
+  email     String    @unique
+  senha     String
+  papel     Papel     @default(CLIENTE)
+  criadoEm  DateTime  @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  reservas  Reserva[]
+
+  @@map("usuarios")
+}
+
+model Veiculo {
+  id          Int          @id @default(autoincrement())
+  placa       String       @unique
+  modelo      String
+  marca       String
+  ano         Int
+  categoriaId Int
+  status      StatusVeiculo @default(DISPONIVEL)
+  criadoEm    DateTime     @default(now())
+  atualizadoEm DateTime    @updatedAt
+
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  reservas    Reserva[]
+
+  @@map("veiculos")
+}
+
+model Categoria {
+  id        Int       @id @default(autoincrement())
+  nome      String    @unique
+  precoDiaria Float
+  veiculos  Veiculo[]
+
+  @@map("categorias")
+}
+
+model Reserva {
+  id         Int          @id @default(autoincrement())
+  usuarioId  Int
+  veiculoId  Int
+  dataInicio DateTime
+  dataFim    DateTime
+  status     StatusReserva @default(PENDENTE)
+  precoTotal Float?
+
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  veiculo   Veiculo @relation(fields: [veiculoId], references: [id])
+  pagamento Pagamento?
+
+  @@map("reservas")
+}
+
+model Pagamento {
+  id            Int          @id @default(autoincrement())
+  reservaId     Int          @unique
+  valor         Float
+  metodoPagamento MetodoPagamento
+  status        StatusPagamento @default(PENDENTE)
+  criadoEm      DateTime     @default(now())
+  
+  reserva Reserva @relation(fields: [reservaId], references: [id])
+
+  @@map("pagamentos")
+}
+
+enum Papel {
+  GERENTE
+  CLIENTE
+}
+
+enum StatusVeiculo {
+  DISPONIVEL
+  LOCADO
+  MANUTENCAO
+}
+
+enum StatusReserva {
+  PENDENTE
+  CONFIRMADA
+  CANCELADA
+  CONCLUIDA
+}
+
+enum MetodoPagamento {
+  CARTAO_CREDITO
+  CARTAO_DEBITO
+  PIX
+  DINHEIRO
+}
+
+enum StatusPagamento {
+  PENDENTE
+  CONCLUIDO
+  FALHOU
+}
