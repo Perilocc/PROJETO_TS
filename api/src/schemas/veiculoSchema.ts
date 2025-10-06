@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createVeiculoSchema = z.object({
-    placa: z.string().min(7, "Placa deve ter no mínimo 7 caracteres").max(7, "Placa deve ter no máximo 7 caracteres"),
+    placa: z.string().length(7, "Placa deve ter exatamente 7 caracteres"),
     modelo: z.string().min(1, "Modelo é obrigatório"),
     marca: z.string().min(1, "Marca é obrigatória"),
     ano: z.number().int("Ano deve ser um número inteiro").min(1900, "Ano inválido").max(new Date().getFullYear() + 1, "Ano não pode ser no futuro"),
@@ -17,6 +17,3 @@ export const updateVeiculoSchema = z.object({
     categoriaId: z.number().int().positive().optional(),
     status: z.enum(["DISPONIVEL", "LOCADO", "MANUTENCAO"]).optional()
 });
-
-export type CreateVeiculoInput = z.infer<typeof createVeiculoSchema>;
-export type UpdateVeiculoInput = z.infer<typeof updateVeiculoSchema>;
