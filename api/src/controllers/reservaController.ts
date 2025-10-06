@@ -1,9 +1,9 @@
 import * as reservaService from "../services/reservaService";
 import {
-  createReservaScherma,
-  updateReservaScherma,
-} from "../schemas/reservaSchemas";
-import { getErrorDetails, isZodError } from "../utils/errorHandlers";
+  createReservaSchema,
+  updateReservaSchema,
+} from "../schemas/reservaSchema";
+import { getErrorDetails } from "../utils/errorHandlers";
 import { Request, Response } from "express";
 
 export const getAllreservas = async (req: Request, res: Response) => {
@@ -27,9 +27,9 @@ export const getReserva = async (req: Request, res: Response) => {
 
 export const createReserva = async (req: Request, res: Response) => {
   try {
-    const data = createReservaScherma.parse(req.body);
+    const data = createReservaSchema.parse(req.body);
     const newReserva = await reservaService.createReserva(
-      data.usariarioId,
+      data.usuarioId,
       data.veiculoId,
       data.dataInicio,
       data.dataFim
@@ -51,7 +51,7 @@ export const updateReserva = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "ID inválido" });
 
   try {
-    const data = updateReservaScherma.parse(req.body);
+    const data = updateReservaSchema.parse(req.body);
     const updateData = {
       ...data,
       dataInicio: data.dataInicio ? new Date(data.dataInicio) : undefined,

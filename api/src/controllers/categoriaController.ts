@@ -1,5 +1,7 @@
+
+import { createCategoriaSchema, updateCategoriaSchema } from "../schemas/categoriaSchema";
 import * as categoriaService from "../services/categoriaService";
-import { createCategoriaSchema, updateCategoriaSchema } from "../schemas/categoriaSchemas";
+
 import { getErrorDetails, isZodError } from "../utils/errorHandlers";
 import { Request, Response } from "express";
 
