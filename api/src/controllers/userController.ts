@@ -1,5 +1,6 @@
 import { createUserSchema, updateUserSchema } from "../schemas/userSchemas";
 import * as userService from "../services/userServices";
+import { getErrorDetails } from "../utils/errorHandlers";
 import { Request, Response } from "express";
 
 export const getAllUsuarios = async (req: Request, res: Response) => {
@@ -24,11 +25,14 @@ export const createUsuario = async (req: Request, res: Response) => {
             data.nome,
             data.email,
             data.senha,
-            data.papel
+            data.papel ?? "CLIENTE"
         );
         return res.status(201).json({ message: "Usuário criado com sucesso", user: newUser });
-    } catch (error: any) {
-        return res.status(400).json({ error: "Erro na validação", details: error.errors ?? error.message });
+    } catch (error: unknown) {
+        return res.status(400).json({ 
+            error: "Erro na validação", 
+            details: getErrorDetails(error) 
+        });
     }
 };
 
@@ -40,11 +44,11 @@ export const updateUsuario = async (req: Request, res: Response) => {
         const data = updateUserSchema.parse(req.body); 
         const updatedUser = await userService.updateUsuario(id, data);
         return res.status(200).json({ message: "Usuário atualizado com sucesso", user: updatedUser });
-    } catch (error: any) {
-        if (error.errors) {
-            return res.status(400).json({ error: "Erro na validação", details: error.errors });
-        }
-        return res.status(404).json({ error: "Usuário não encontrado" });
+    } catch (error: unknown) {
+        return res.status(400).json({ 
+            error: "Erro na validação", 
+            details: getErrorDetails(error) 
+        });
     }
 };
 
