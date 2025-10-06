@@ -1,5 +1,5 @@
+import prisma from "../db/prisma";
 import { Usuario, Papel } from "../generated/prisma";
-import prisma from "../prisma";
 
 export const getAllUsuarios = async (): Promise<Usuario[]> => {
     return prisma.usuario.findMany();
