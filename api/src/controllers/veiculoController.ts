@@ -1,5 +1,5 @@
-import * as veiculoService from "../services/veiculoService.js";
-import { createVeiculoSchema } from "../schemas/veiculoSchemas";
+import * as veiculoService from "../services/veiculoService";
+import { createVeiculoSchema } from "../schemas/veiculoSchema";
 import { getErrorDetails } from "../utils/errorHandlers";
 import { Request, Response } from "express";
 

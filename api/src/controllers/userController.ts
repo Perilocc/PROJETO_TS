@@ -1,5 +1,5 @@
-import { createUserSchema, updateUserSchema } from "../schemas/userSchemas";
-import * as userService from "../services/userServices";
+import { createUserSchema, updateUserSchema } from "../schemas/userSchema";
+import * as userService from "../services/userService";
 import { getErrorDetails } from "../utils/errorHandlers";
 import { Request, Response } from "express";
 
