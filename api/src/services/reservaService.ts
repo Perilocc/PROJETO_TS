@@ -19,7 +19,7 @@ export const createReserva = async (
   veiculoId: number,
   dataInicio: string,
   dataFim: string,
-  precoTotal?: number
+  precoTotal: number
 ): Promise<Reserva> => {
   return prisma.reserva.create({
     data: {
@@ -41,7 +41,7 @@ export const updateReserva = async (
     dataInicio: data.dataInicio ? new Date(data.dataInicio) : undefined,
     dataFim: data.dataFim ? new Date(data.dataFim) : undefined,
   };
-  return prisma.reserva.update({ where: { id }, data: updateData });
+  return prisma.reserva.update({ where: { id }, data: updateData, include: { usuario: true, veiculo: true } });
 };
 
 export const deleteReserva = async (id: number): Promise<void> => {
