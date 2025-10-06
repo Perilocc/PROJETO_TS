@@ -1,12 +1,20 @@
+import { includes } from "zod";
 import prisma from "../db/prisma";
 import { StatusVeiculo, Veiculo } from "../generated/prisma";
 
 export const getAllVeiculos = async () => {
-	return prisma.veiculo.findMany();
+    return prisma.veiculo.findMany({
+        include: {
+            categoria: true
+        }
+    });
 }
 
 export const getVeiculoById = async (id: number): Promise<Veiculo | null> => {
-	return prisma.veiculo.findUnique({ where: { id } });
+	return prisma.veiculo.findUnique({ 
+		where: { id },
+		include: { categoria: true } 
+	});
 }
 
 export const createVeiculo = async (
@@ -30,7 +38,7 @@ export const createVeiculo = async (
 };
 
 export const updateVeiculo = async (id: number, data: Partial<Veiculo>): Promise<Veiculo> => {
-	return prisma.veiculo.update({ where: { id }, data });
+	return prisma.veiculo.update({ where: { id }, data, include: { categoria: true } });
 }
 
 export const deleteVeiculo = async (id: number): Promise<void> => {
