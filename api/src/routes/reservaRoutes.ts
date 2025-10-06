@@ -43,12 +43,6 @@ const router = Router();
  *           nullable: true
  *           description: Preço total da reserva
  *           example: 500.00
- *         usuario:
- *           $ref: '#/components/schemas/UsuarioSimples'
- *         veiculo:
- *           $ref: '#/components/schemas/VeiculoComCategoria'
- *         pagamento:
- *           $ref: '#/components/schemas/Pagamento'
  * 
  *     CreateReserva:
  *       type: object
