@@ -32,7 +32,8 @@ export const createVeiculo = async (
 			ano, 
 			categoriaId, 
 			status
-		} 
+		},
+		include: { categoria: true }
 	});
 };
 

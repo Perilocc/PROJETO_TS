@@ -23,7 +23,8 @@ export const createPagamento = async (
             valor,
             metodoPagamento,
             status
-        }
+        },
+        include: { reserva: true }
     });
 }
 

@@ -29,6 +29,7 @@ export const createReserva = async (
       dataFim: new Date(dataFim),
       precoTotal,
     },
+    include: { usuario: true, veiculo: true }
   });
 };
 
