@@ -1,4 +1,3 @@
-import { includes } from "zod";
 import prisma from "../db/prisma";
 import { StatusVeiculo, Veiculo } from "../generated/prisma";
 
