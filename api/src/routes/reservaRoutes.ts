@@ -16,7 +16,7 @@ const router = Router();
  *           example: 1
  *         status:
  *           type: string
- *           enum: [PENDENTE, CONFIRMADA, EM_ANDAMENTO, CONCLUIDA, CANCELADA]
+ *           enum: [PENDENTE, CONFIRMADA, CANCELADA, CONCLUIDA]
  *           description: Status da reserva
  *           example: CONFIRMADA
  *         usuarioId:
@@ -147,7 +147,7 @@ const router = Router();
  *                     modelo: "Gol"
  *                     marca: "Volkswagen"
  *                     ano: 2023
- *                     status: "ALUGADO"
+ *                     status: "LOCADO"
  *                     categoriaId: 1
  *                     categoria:
  *                       id: 1
@@ -158,7 +158,7 @@ const router = Router();
  *                     reservaId: 1
  *                     valor: 500.00
  *                     metodoPagamento: "CARTAO_CREDITO"
- *                     status: "APROVADO"
+ *                     status: "CONCLUIDO"
  *                     dataPagamento: "2024-01-15T10:30:00.000Z"
  */
 router.get("/", reservaController.getAllreservas);
