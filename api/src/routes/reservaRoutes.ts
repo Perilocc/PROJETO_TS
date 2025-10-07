@@ -51,6 +51,7 @@ const router = Router();
  *         - veiculoId
  *         - dataInicio
  *         - dataFim
+ *         - precoTotal
  *       properties:
  *         usuarioId:
  *           type: integer
@@ -62,16 +63,19 @@ const router = Router();
  *           example: 1
  *         dataInicio:
  *           type: string
- *           description: Data de início da reserva
- *           example: "15/01/2024"
+ *           description: Data de início da reserva no formato YYYY-MM-DD (exatamente 10 caracteres)
+ *           pattern: '^\d{4}-\d{2}-\d{2}$'
+ *           example: "2025-01-15"
  *         dataFim:
  *           type: string
- *           description: Data de término da reserva
- *           example: "20/01/2024"
+ *           description: Data de término da reserva no formato YYYY-MM-DD (exatamente 10 caracteres)
+ *           pattern: '^\d{4}-\d{2}-\d{2}$'
+ *           example: "2025-01-20"
  *         precoTotal:
  *           type: number
  *           format: float
- *           description: Preço total da reserva (opcional)
+ *           description: Preço total da reserva (deve ser positivo)
+ *           minimum: 0.01
  *           example: 500.00
  *     
  *     UpdateReserva:
@@ -85,13 +89,18 @@ const router = Router();
  *           example: 2
  *         dataInicio:
  *           type: string
- *           example: "16/01/2024"
+ *           description: Data de início no formato YYYY-MM-DD
+ *           pattern: '^\d{4}-\d{2}-\d{2}$'
+ *           example: "2025-01-16"
  *         dataFim:
  *           type: string
- *           example: "21/01/2024"
+ *           description: Data de término no formato YYYY-MM-DD
+ *           pattern: '^\d{4}-\d{2}-\d{2}$'
+ *           example: "2025-01-21"
  *         precoTotal:
  *           type: number
  *           format: float
+ *           minimum: 0
  *           example: 600.00
  */
 
@@ -124,8 +133,8 @@ const router = Router();
  *                   status: CONFIRMADA
  *                   usuarioId: 1
  *                   veiculoId: 1
- *                   dataInicio: "2024-01-15T00:00:00.000Z"
- *                   dataFim: "2024-01-20T00:00:00.000Z"
+ *                   dataInicio: "2025-01-15T00:00:00.000Z"
+ *                   dataFim: "2025-01-20T00:00:00.000Z"
  *                   precoTotal: 500.00
  *                   usuario:
  *                     id: 1
@@ -224,16 +233,17 @@ router.get("/:id", reservaController.getReserva);
  *               value:
  *                 usuarioId: 1
  *                 veiculoId: 1
- *                 dataInicio: "15/01/2024"
- *                 dataFim: "20/01/2024"
+ *                 dataInicio: "2025-01-15"
+ *                 dataFim: "2025-01-20"
  *                 precoTotal: 500.00
- *             reservaSemPreco:
- *               summary: Reserva sem preço total
+ *             reservaEconomica:
+ *               summary: Reserva econômica
  *               value:
  *                 usuarioId: 2
  *                 veiculoId: 3
- *                 dataInicio: "22/01/2024"
- *                 dataFim: "25/01/2024"
+ *                 dataInicio: "2025-01-22"
+ *                 dataFim: "2025-01-25"
+ *                 precoTotal: 300.00
  *     responses:
  *       201:
  *         description: Reserva criada com sucesso
@@ -296,8 +306,8 @@ router.post("/", reservaController.createReserva);
  *             atualizarDatas:
  *               summary: Atualizar datas
  *               value:
- *                 dataInicio: "16/01/2024"
- *                 dataFim: "21/01/2024"
+ *                 dataInicio: "2025-01-16"
+ *                 dataFim: "2025-01-21"
  *             atualizarPreco:
  *               summary: Atualizar preço
  *               value:

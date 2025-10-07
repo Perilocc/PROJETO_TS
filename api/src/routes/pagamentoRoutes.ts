@@ -54,7 +54,8 @@ const router = Router();
  *         valor:
  *           type: number
  *           format: float
- *           description: Valor do pagamento (deve ser positivo)
+ *           description: Valor do pagamento
+ *           minimum: 0
  *           example: 500.00
  *         metodoPagamento:
  *           type: string
