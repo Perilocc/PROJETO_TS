@@ -1,4 +1,5 @@
 import prisma from "../db/prisma";
+import { differenceInDays } from "date-fns";
 import { Reserva } from "../generated/prisma";
 
 export const getAllreservas = async (): Promise<Reserva[]> => {
@@ -19,8 +20,26 @@ export const createReserva = async (
   veiculoId: number,
   dataInicio: string,
   dataFim: string,
-  precoTotal: number
 ): Promise<Reserva> => {
+  const veiculo = await prisma.veiculo.findUnique({
+    where: { id: veiculoId },
+    select: { categoria: true },
+  });
+  
+  if (!veiculo) {
+    throw new Error("Veículo não encontrado");
+  }
+
+  const categoria = veiculo.categoria;
+  const precoDiaria = categoria.precoDiaria;
+
+  const diasReserva = differenceInDays(new Date(dataFim), new Date(dataInicio));
+  if (diasReserva <= 0) {
+    throw new Error("A data de término deve ser posterior à data de início");
+  }
+
+  const precoTotal = diasReserva * precoDiaria;
+
   return prisma.reserva.create({
     data: {
       usuarioId,
@@ -29,6 +48,7 @@ export const createReserva = async (
       dataFim: new Date(dataFim),
       precoTotal,
     },
+    include: { usuario: true, veiculo: true }
   });
 };
 
