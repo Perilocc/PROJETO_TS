@@ -1,6 +1,7 @@
 import { createUserSchema, updateUserSchema } from "../schemas/userSchema";
-import * as userService from "../services/userService";
+import { autenticarUsuario } from "../services/userService";
 import { getErrorDetails } from "../utils/errorHandlers";
+import * as userService from "../services/userService";
 import { Request, Response } from "express";
 
 export const getAllUsuarios = async (req: Request, res: Response) => {
@@ -74,3 +75,17 @@ export const deleteUsuario = async (req: Request, res: Response) => {
     return res.status(404).json({ error: "Usuário não encontrado" });
   }
 };
+
+export async function loginUsuario(req: Request, res: Response) {
+  const { email, senha } = req.body;
+
+  try {
+    const { token, user } = await autenticarUsuario(email, senha);
+    return res.status(200).json({ token, user });
+  } catch (error: any) {
+    const status = error.message.includes("não encontrado") || error.message.includes("incorreta")
+      ? 401
+      : 500;
+    return res.status(status).json({ error: error.message });
+  }
+}

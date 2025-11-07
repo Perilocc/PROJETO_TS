@@ -7,9 +7,10 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+setupSwagger(app);
+
 app.use('', routes);
 
-setupSwagger(app);
 
 app.listen(port, () => {
     console.log(`🚀 API rodando em http://localhost:${port}`);
