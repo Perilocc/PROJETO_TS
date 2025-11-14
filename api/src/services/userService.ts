@@ -1,6 +1,7 @@
-import bcrypt from "bcrypt";
-import prisma from "../db/prisma";
 import { Usuario, Papel } from "../generated/prisma";
+import prisma from "../db/prisma";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 export const getAllUsuarios = async () => {
     return prisma.usuario.findMany({
@@ -77,3 +78,21 @@ export const updateUsuario = async (id: number, data: Partial<Usuario>) => {
 export const deleteUsuario = async (id: number): Promise<void> => {
     await prisma.usuario.delete({ where: { id } });
 };
+
+const JWT_SECRET = process.env.JWT_SECRET
+
+export async function autenticarUsuario(email: string, senha: string) {
+    const user = await prisma.usuario.findUnique({ where: { email } });
+    if (!user) throw new Error("Usuário não encontrado");
+
+    const senhaCorreta = await bcrypt.compare(senha, user.senha);
+    if (!senhaCorreta) throw new Error("Senha incorreta");
+
+    const token = jwt.sign(
+        { id: user.id, email: user.email, papel: user.papel },
+        JWT_SECRET,
+        { expiresIn: "1d" }
+    );
+
+    return { token, user };
+}

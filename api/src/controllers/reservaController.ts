@@ -32,8 +32,7 @@ export const createReserva = async (req: Request, res: Response) => {
       data.usuarioId,
       data.veiculoId,
       data.dataInicio,
-      data.dataFim,
-      data.precoTotal
+      data.dataFim
     );
     return res
       .status(201)

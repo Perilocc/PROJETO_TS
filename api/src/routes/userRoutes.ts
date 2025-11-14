@@ -4,10 +4,13 @@ import {
     updateUsuario, 
     deleteUsuario,
     getAllUsuarios, 
+    loginUsuario,
     getUsuario, 
 } from "../controllers/userController";
 
 const router = Router();
+
+router.post("/login", loginUsuario);
 
 /**
  * @swagger
