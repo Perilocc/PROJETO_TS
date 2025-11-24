@@ -30,7 +30,7 @@ export default function Register() {
     const onSubmit = async (data: RegisterFormData) => {
         try {
             setError(null);
-            await registerUser(
+            await userRegister(
                 data.nome,
                 data.email,
                 data.senha,
