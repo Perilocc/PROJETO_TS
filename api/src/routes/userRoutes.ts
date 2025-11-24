@@ -1,16 +1,13 @@
 import { Router } from "express";
 import {
-    createUsuario, 
     updateUsuario, 
     deleteUsuario,
     getAllUsuarios, 
-    loginUsuario,
-    getUsuario, 
+    getUsuario,
+    createUsuario, 
 } from "../controllers/userController";
 
 const router = Router();
-
-router.post("/login", loginUsuario);
 
 /**
  * @swagger
@@ -88,6 +85,8 @@ router.post("/login", loginUsuario);
  *   get:
  *     summary: Listar todos os usuários
  *     tags: [Usuários]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de usuários retornada com sucesso

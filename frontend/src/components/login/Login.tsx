@@ -6,23 +6,43 @@ import { ThemeToggle } from "../theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { loginSchema, type LoginFormData } from "@/schemas/authSchema";
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
+    
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+    });
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        
-        setTimeout(() => {
-            console.log("Login:", { email, password });
-            setIsLoading(false);
-        }, 1500);
+    const onSubmit = async (data: LoginFormData) => {
+        try {
+            setError(null);
+            const result = await signIn("credentials", {
+                email: data.email,
+                senha: data.senha,
+                redirect: false,
+            });
+
+            if (result?.error) {
+                setError("Email ou senha incorretos");
+            } else {
+                router.push("/dashboard");
+            }
+        } catch (err) {
+            setError("Erro inesperado ao fazer login");
+        }
     };
 
     return (
@@ -54,7 +74,13 @@ export default function Login() {
                     </div>
 
                     <CardContent className="px-8 py-8">
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                            {error && (
+                                <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg text-sm">
+                                    {error}
+                                </div>
+                            )}
+                            
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
                                 <div className="relative">
@@ -64,13 +90,14 @@ export default function Login() {
                                     <Input
                                         id="email"
                                         type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
+                                        {...register("email")}
                                         className="pl-10"
                                         placeholder="seu@email.com"
                                     />
                                 </div>
+                                {errors.email && (
+                                    <p className="text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -82,16 +109,14 @@ export default function Login() {
                                     <Input
                                         id="password"
                                         type={showPassword ? "text" : "password"}
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
+                                        {...register("senha")}
                                         className="pl-10 pr-12"
                                         placeholder="••••••••"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                                        className="cursor-pointer absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
                                     >
                                         {showPassword ? (
                                             <EyeOff className="h-5 w-5" />
@@ -100,15 +125,12 @@ export default function Login() {
                                         )}
                                     </button>
                                 </div>
+                                {errors.senha && (
+                                    <p className="text-sm text-red-600 dark:text-red-400">{errors.senha.message}</p>
+                                )}
                             </div>
 
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox id="remember" />
-                                    <Label htmlFor="remember" className="cursor-pointer font-normal">
-                                        Lembrar-me
-                                    </Label>
-                                </div>
+                            <div className="flex items-center justify-end">
                                 <a 
                                     href="#" 
                                     className="text-sm font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
@@ -119,10 +141,10 @@ export default function Login() {
 
                             <Button
                                 type="submit"
-                                disabled={isLoading}
-                                className="w-full"
+                                disabled={isSubmitting}
+                                className="w-full cursor-pointer"
                             >
-                                {isLoading ? (
+                                {isSubmitting ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         Entrando...
@@ -146,7 +168,7 @@ export default function Login() {
                             <p className="text-center text-sm text-gray-600 dark:text-gray-400">
                                 Não tem uma conta?{" "}
                                 <a 
-                                    href="#" 
+                                    href="/registrar" 
                                     className="font-semibold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
                                 >
                                     Criar conta
@@ -155,10 +177,6 @@ export default function Login() {
                         </form>
                     </CardContent>
                 </Card>
-
-                <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-                    © 2025 Locadora de Veículos. Todos os direitos reservados.
-                </p>
             </div>
         </div>
     );
