@@ -40,8 +40,8 @@ export default function Login() {
             } else {
                 router.push("/dashboard");
             }
-        } catch (err) {
-            setError("Erro inesperado ao fazer login");
+        } catch (err: unknown) {
+            setError(`"Erro inesperado ao fazer login: ${err as string}'"`);
         }
     };
 
