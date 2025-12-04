@@ -1,22 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/services/api";
+import { getVeiculos } from "@/services/veiculoService";
 import { useSession } from "next-auth/react";
-
-interface Veiculo {
-    id: number;
-    placa: string;
-    modelo: string;
-    marca: string;
-    ano: number;
-    status: string;
-    categoria: {
-        id: number;
-        nome: string;
-    };
-    imagem?: string;
-}
+import { useEffect, useState } from "react";
+import { Veiculo } from "@/types/veiculos";
 
 export default function ListaVeiculos() {
     const { data: session, status } = useSession();
@@ -25,29 +12,24 @@ export default function ListaVeiculos() {
     const [error, setError] = useState<string | null>(null);
     
     useEffect(() => {
-        // Espera autenticação completar
         if (status === "loading") return;
         
-        // Se não estiver autenticado, não faz a requisição
         if (status !== "authenticated") {
             setLoading(false);
             setError("Você precisa estar autenticado");
             return;
-        }
+        }   
 
         async function fetchVeiculos() {
+            const token = session?.user?.token;
+            console.log("Token de autenticação:", token);
+
             try {
-                const token = session?.accessToken || session?.user?.token;
-                
-                // Faz a requisição com o token no header
-                const response = await api.get("/veiculos/", {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                
-                setVeiculos(response.data);
+                const response = await getVeiculos(token as string);
+                console.log("Resposta da API de veículos:", response);
+                setVeiculos(response.veiculos);
                 setError(null);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (err: any) {
                 console.error("Erro ao buscar veículos:", err);
                 setError(
@@ -61,9 +43,9 @@ export default function ListaVeiculos() {
         }
 
         fetchVeiculos();
-    }, [status, session]); // Adiciona session como dependência
+    }, [status, session]);
 
-    const categorias = veiculos.reduce((acc: Record<string, Veiculo[]>, item) => {
+    const categorias = veiculos?.reduce((acc: Record<string, Veiculo[]>, item) => {
         const nomeCategoria = item.categoria.nome;
         if (!acc[nomeCategoria]) acc[nomeCategoria] = [];
         acc[nomeCategoria].push(item);
@@ -86,7 +68,7 @@ export default function ListaVeiculos() {
         );
     }
 
-    if (veiculos.length === 0) {
+    if (veiculos?.length === 0) {
         return (
             <div className="w-full px-6 py-8">
                 <p className="text-center text-gray-500">Nenhum veículo disponível</p>
