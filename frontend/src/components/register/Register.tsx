@@ -13,6 +13,7 @@ import { registerSchema, type RegisterFormData } from "@/schemas/userSchema";
 import { userRegister } from "@/services/authService";
 import axios from "axios";
 
+
 export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -227,8 +228,7 @@ export default function Register() {
 
                                 <p className="text-center text-sm text-gray-600 dark:text-gray-400">
                                     Já tem uma conta?{" "}
-                                    <a 
-                                        href="/" 
+                                    <a href="/ "  
                                         className="font-semibold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
                                     >
                                         Fazer login

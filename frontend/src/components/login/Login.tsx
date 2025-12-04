@@ -38,7 +38,7 @@ export default function Login() {
             if (result?.error) {
                 setError("Email ou senha incorretos");
             } else {
-                router.push("/dashboard");
+                router.push("/veiculos");
             }
         } catch (err: unknown) {
             setError(`"Erro inesperado ao fazer login: ${err as string}'"`);
