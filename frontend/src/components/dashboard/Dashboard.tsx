@@ -4,13 +4,14 @@ import { getVeiculos } from "@/services/veiculoService";
 import { Veiculo } from "@/types/veiculos";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Lock, Wrench, Truck } from "lucide-react";
+import { Lock, Wrench, Truck, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function Dashboard() {
     const { data: session, status } = useSession();
     const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [mostrarTodasCategorias, setMostrarTodasCategorias] = useState(false);
 
     useEffect(() => {
         if (status === "loading") return;
@@ -149,7 +150,10 @@ export default function Dashboard() {
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Veículos por categoria</h2>
                     <div className="space-y-3">
-                        {Object.entries(resumoCategorias).sort((a, b) => b[1] - a[1]).map(([categoria, quantidade]) => (
+                        {Object.entries(resumoCategorias)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, mostrarTodasCategorias ? undefined : 3)
+                            .map(([categoria, quantidade]) => (
                             <div key={categoria} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -166,6 +170,24 @@ export default function Dashboard() {
                             </div>
                         ))}
                     </div>
+                    {Object.entries(resumoCategorias).length > 3 && (
+                        <button 
+                            onClick={() => setMostrarTodasCategorias(!mostrarTodasCategorias)}
+                            className="mt-4 w-full flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition"
+                        >
+                            {mostrarTodasCategorias ? (
+                                <>
+                                    Mostrar menos
+                                    <ChevronUp className="w-4 h-4" />
+                                </>
+                            ) : (
+                                <>
+                                    Mostrar todas ({Object.entries(resumoCategorias).length})
+                                    <ChevronDown className="w-4 h-4" />
+                                </>
+                            )}
+                        </button>
+                    )}
                 </div>
 
                 {/* Seção de ações rápidas */}
