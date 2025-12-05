@@ -52,7 +52,7 @@ export default function ListaVeiculos() {
 
     if (!acc[nomeCategoria]) {
         acc[nomeCategoria] = {
-            categoria: item.categoria,  // <-- agora salva o objeto completo
+            categoria: item.categoria,
             lista: []
         };
     }
@@ -115,7 +115,7 @@ export default function ListaVeiculos() {
                         {dados.lista.map((veiculo) => (
                             <div
                                 key={veiculo.id}
-                                className="border rounded-xl p-4 shadow-sm hover:shadow-lg transition hover:-translate-y-1 cursor-pointer bg-white dark:bg-gray-900"
+                                className="border rounded-xl p-4 shadow-sm hover:shadow-lg transition hover:-translate-y-1 bg-white dark:bg-gray-900"
                             >
                                 {/* Imagem */}
                                 <div className="w-full h-36 bg-gray-100 dark:bg-gray-800 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
@@ -145,23 +145,44 @@ export default function ListaVeiculos() {
                                 </p>
 
                                 {/* Status */}
-                                <span
-                                    className={`
-                                        inline-flex items-center gap-1 mt-3 px-2 py-1 text-xs rounded-full font-semibold uppercase tracking-wide
-                                        ${
-                                            veiculo.status === "DISPONIVEL"
-                                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                            : veiculo.status === "LOCADO"
-                                                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                        }
-                                    `}
-                                >
-                                    {veiculo.status === "DISPONIVEL" && null}
-                                    {veiculo.status === "LOCADO" && <Lock size={12} />}
-                                    {veiculo.status === "MANUTENCAO" && <Wrench size={12} />}
-                                    {veiculo.status}
-                                </span>
+                                <div className="flex items-center justify-between mt-3">
+                                    <span
+                                        className={`
+                                            inline-flex items-center gap-1 mt-3 px-2 py-1 text-xs rounded-full font-semibold uppercase tracking-wide
+                                            ${
+                                                veiculo.status === "DISPONIVEL"
+                                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                : veiculo.status === "LOCADO"
+                                                    ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                            }
+                                        `}
+                                    >
+                                        {veiculo.status === "MANUTENCAO" && <Wrench size={12} />}
+                                        {veiculo.status === "LOCADO" && <Lock size={12} />}
+                                        {veiculo.status}
+                                    </span>
+                                    {/* BOTÃO PARA LOCAR — aparece só se estiver disponível */}
+
+                                    {veiculo.status === "DISPONIVEL" && (
+                                        <button
+                                            className="
+                                                inline-flex items-center justify-center
+                                                w-24  /* largura fixa */
+                                                py-2
+                                                text-sm font-semibold
+                                                rounded-lg
+                                                bg-blue-600 text-white
+                                                hover:bg-blue-700
+                                                transition shadow
+                                                cursor-pointer
+                                            "
+                                            onClick={() => console.log(`Locar veículo ID ${veiculo.id}`)}
+                                        >
+                                            Locar
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
