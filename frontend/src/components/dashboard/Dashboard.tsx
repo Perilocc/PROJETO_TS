@@ -5,7 +5,8 @@ import { Veiculo } from "@/types/veiculos";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Lock, Wrench, Truck, ChevronDown, ChevronUp } from "lucide-react";
-import { criarCategoria } from "@/services/categoriaService";
+import { criarCategoria, getCategorias } from "@/services/categoriaService";
+import { criarVeiculo } from "@/services/veiculoService";
 import {
     Dialog,
     DialogContent,
@@ -14,13 +15,67 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
+import { Categoria } from "@/types/categorias";
 
 export default function Dashboard() {
     const { data: session, status } = useSession();
     const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+    const [categorias,  setCategorias] = useState<Categoria[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [mostrarTodasCategorias, setMostrarTodasCategorias] = useState(false);
+
+    // Modal Veículo
+    const [modalVeiculoAberto, setModalVeiculoAberto] = useState(false);
+    const [placa, setPlaca] = useState("");
+    const [modelo, setModelo] = useState("");
+    const [marca, setMarca] = useState("");
+    const [ano, setAno] = useState("");
+    const [categoriaIdSelecionada, setCategoriaIdSelecionada] = useState("");
+    const [imagemUrl, setImagemUrl] = useState("");
+
+    const podeCriarVeiculo = (
+        placa.trim() !== "" && 
+        modelo.trim() !== "" && 
+        marca.trim() !== "" && 
+        ano.trim() !== "" && 
+        parseInt(ano) > 1900 && 
+        parseInt(ano) <= new Date().getFullYear() + 1 &&
+        categoriaIdSelecionada !== "");
+    
+    const handleCriarVeiculo = async () => {
+        if (!placa || !modelo || !marca || !ano || !categoriaIdSelecionada) return;
+        if (!session?.user?.token) return;
+
+        try {
+            const veiculo = await criarVeiculo(
+                placa.replace("-", ""),
+                modelo,
+                marca,
+                parseInt(ano),
+                parseInt(categoriaIdSelecionada),
+                session.user.token,
+                imagemUrl || null
+            );
+            console.log("Veículo criado:", veiculo);
+            setModalVeiculoAberto(false);
+            setPlaca("");
+            setModelo("");
+            setMarca("");
+            setAno("");
+            setCategoriaIdSelecionada("");
+            setImagemUrl("");
+            toast.success("Veículo cadastrado com sucesso!");
+            
+            // Recarregar sveículo
+            const veiculosAtualizados = await getVeiculos(session.user.token);
+            setVeiculos(veiculosAtualizados.veiculos);
+            setError(null);
+        } catch (error) {
+            console.error("Erro completo:", error);
+            toast.error("Erro ao criar veículo. Tente novamente!");
+        }
+    };
 
     // Modal Categoria
     const [modalCategoriaAberto, setModalCategoriaAberto] = useState(false);
@@ -79,8 +134,14 @@ export default function Dashboard() {
                 setLoading(false);
             }
         }
-
+        
+        const fetchCategorias = async () => {
+            const catgs = await getCategorias(session.user.token);
+            setCategorias(catgs.categorias);
+        };
+        
         fetchVeiculos();
+        fetchCategorias();
     }, [status, session]);
 
     const resumoVeiculos = veiculos.reduce(
@@ -114,7 +175,6 @@ export default function Dashboard() {
         },
         {} as Record<string, number>
     );
-
 
     if (loading) {
         return (
@@ -164,7 +224,11 @@ export default function Dashboard() {
                     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Ações rápidas</h2>
                         <div className="flex flex-col gap-3">
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow py-3 font-semibold transition cursor-pointer">
+                            <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow py-3 font-semibold transition cursor-pointer"
+                                onClick={() => {
+                                    setModalVeiculoAberto(true);
+                                }}
+                            >
                                 Criar Veículo
                             </button>
                             <button className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow py-3 font-semibold transition cursor-pointer"
@@ -347,6 +411,182 @@ export default function Dashboard() {
                                 disabled={!podeCriarCategoria}
                             >
                                 Criar Categoria
+                            </button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            )}
+            {/* Modal Criar Veículo */}
+            {modalVeiculoAberto && (
+                <Dialog 
+                    open={modalVeiculoAberto} 
+                    onOpenChange={(open) => {
+                        setModalVeiculoAberto(open);
+                        if (!open) {
+                            setPlaca("");
+                            setModelo("");
+                            setMarca("");
+                            setAno("");
+                            setCategoriaIdSelecionada("");
+                            setImagemUrl("");
+                        }
+                    }}
+                >
+                    <DialogContent className="sm:max-w-md w-full">
+                        <DialogHeader>
+                            <DialogTitle className="w-full text-center">
+                                Criar Novo Veículo
+                            </DialogTitle>
+                        </DialogHeader>
+
+                        <div className="px-6 py-4 flex flex-col gap-4">
+                            {/* Placa */}
+                            <div className="flex flex-col w-full">
+                                <label
+                                    htmlFor="placa"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Placa
+                                </label>
+                                <input
+                                    id="placa"
+                                    type="text"
+                                    value={placa}
+                                    onChange={(e) => setPlaca(e.target.value.toUpperCase())}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="ABC-1234"
+                                    maxLength={8}
+                                />
+                            </div>
+
+                            {/* Modelo */}
+                            <div className="flex flex-col w-full">
+                                <label
+                                    htmlFor="modelo"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Modelo
+                                </label>
+                                <input
+                                    id="modelo"
+                                    type="text"
+                                    value={modelo}
+                                    onChange={(e) => setModelo(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Ex: Corolla, Civic, Onix..."
+                                />
+                            </div>
+
+                            {/* Marca */}
+                            <div className="flex flex-col w-full">
+                                <label
+                                    htmlFor="marca"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Marca
+                                </label>
+                                <input
+                                    id="marca"
+                                    type="text"
+                                    value={marca}
+                                    onChange={(e) => setMarca(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Ex: Toyota, Honda, Chevrolet..."
+                                />
+                            </div>
+
+                            {/* Ano */}
+                            <div className="flex flex-col w-full">
+                                <label
+                                    htmlFor="ano"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Ano
+                                </label>
+                                <input
+                                    id="ano"
+                                    type="number"
+                                    min="1900"
+                                    max={new Date().getFullYear() + 1}
+                                    value={ano}
+                                    onChange={(e) => setAno(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="2024"
+                                />
+                            </div>
+
+                            {/* Categoria */}
+                            <div className="flex flex-col w-full">
+                                <label
+                                    htmlFor="categoria"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Categoria
+                                </label>
+                                <select
+                                    id="categoria"
+                                    value={categoriaIdSelecionada}
+                                    onChange={(e) => setCategoriaIdSelecionada(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                                    <option value="">Selecione uma categoria</option>
+                                    {categorias.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.nome}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* URL da Imagem (Opcional) */}
+                            <div className="flex flex-col w-full">
+                                <label
+                                    htmlFor="imagem-url"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    URL da Imagem (opcional)
+                                </label>
+                                <input
+                                    id="imagem-url"
+                                    type="text"
+                                    value={imagemUrl}
+                                    onChange={(e) => setImagemUrl(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="https://exemplo.com/imagem.jpg"
+                                />
+                            </div>
+                        </div>
+
+                        <DialogFooter>
+                            <button
+                                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-red-200 dark:hover:bg-red-700 rounded-lg transition"
+                                onClick={() => {
+                                    setModalVeiculoAberto(false);
+                                    setPlaca("");
+                                    setModelo("");
+                                    setMarca("");
+                                    setAno("");
+                                    setCategoriaIdSelecionada("");
+                                    setImagemUrl("");
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className={`
+                                    px-5 py-2 
+                                    bg-blue-600 
+                                    hover:bg-blue-800
+                                    rounded-lg
+                                    shadow-xl
+                                    text-white 
+                                    text-sm font-semibold
+                                    ${!podeCriarVeiculo ? "opacity-50 cursor-not-allowed hover:bg-blue-600" : ""}
+                                `}
+                                onClick={handleCriarVeiculo}
+                                disabled={!podeCriarVeiculo}
+                            >
+                                Criar Veículo
                             </button>
                         </DialogFooter>
                     </DialogContent>
