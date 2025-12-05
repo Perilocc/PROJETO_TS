@@ -7,7 +7,7 @@ export const getAllVeiculos = async (req: Request, res: Response) => {
 	const veiculos = await veiculoService.getAllVeiculos();
 	return res.status(200).json({ message: "Veículos encontrados com sucesso", veiculos });
 };
- 
+
 export const getVeiculo = async (req: Request, res: Response) => {
 	const id = parseInt(req.params.id);
 	if (isNaN(id) || id <= 0) return res.status(400).json({ error: "ID inválido" });
@@ -28,7 +28,8 @@ export const createVeiculo = async (req: Request, res: Response) => {
 			data.marca,
 			data.ano,
 			data.categoriaId,
-			data.status ?? "DISPONIVEL"
+			data.status ?? "DISPONIVEL",
+			data.imagemUrl
 		);
 		return res.status(201).json({ message: "Veículo criado com sucesso", veiculo: newVeiculo });
 	} catch (error: unknown) {

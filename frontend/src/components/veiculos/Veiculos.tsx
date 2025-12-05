@@ -92,10 +92,10 @@ export default function ListaVeiculos() {
                                     className="border rounded-lg p-4 shadow hover:shadow-md transition cursor-pointer bg-white dark:bg-gray-900"
                                 >
                                     <div className="w-full h-32 bg-gray-100 dark:bg-gray-800 rounded mb-3 flex items-center justify-center">
-                                        {veiculo.imagem ? (
+                                        {veiculo.imagemUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img
-                                                src={veiculo.imagem}
+                                                src={veiculo.imagemUrl}
                                                 alt={`${veiculo.marca} ${veiculo.modelo}`}
                                                 className="h-full object-cover rounded"
                                             />

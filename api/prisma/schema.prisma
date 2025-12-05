@@ -33,6 +33,8 @@ model Veiculo {
   criadoEm    DateTime     @default(now())
   atualizadoEm DateTime    @updatedAt
 
+  imagemUrl     String? 
+
   categoria   Categoria @relation(fields: [categoriaId], references: [id])
   reservas    Reserva[]
 

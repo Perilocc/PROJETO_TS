@@ -22,7 +22,8 @@ export const createVeiculo = async (
 	marca: string,
 	ano: number,
 	categoriaId: number,
-	status: StatusVeiculo
+	status: StatusVeiculo,
+	imagemUrl?: string
 ): Promise<Veiculo> => {
 	return prisma.veiculo.create({ 
 		data: { 
@@ -31,7 +32,8 @@ export const createVeiculo = async (
 			marca, 
 			ano, 
 			categoriaId, 
-			status
+			status,
+			imagemUrl 
 		},
 		include: { categoria: true }
 	});

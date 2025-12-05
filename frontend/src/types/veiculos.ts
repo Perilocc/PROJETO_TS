@@ -11,5 +11,5 @@ export interface Veiculo {
         id: number;
         nome: string;
     };
-    imagem?: string;
+    imagemUrl?: string;
 }
