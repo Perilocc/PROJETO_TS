@@ -225,7 +225,7 @@ export default function ListaVeiculos() {
                                     >
                                         {veiculo.status === "MANUTENCAO" && <Wrench size={12} />}
                                         {veiculo.status === "LOCADO" && <Lock size={12} />}
-                                        {veiculo.status}
+                                        {veiculo.status === "MANUTENCAO" ? "MANUTENÇÃO" : veiculo.status}
                                     </span>
                                     {/* BOTÃO PARA LOCAR*/}
 
