@@ -6,14 +6,16 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Veiculo } from "@/types/veiculos";
 import { Lock, Wrench} from "lucide-react"
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogDescription,
     DialogFooter,
     DialogTrigger,
+    DialogDescription,
 } from "@/components/ui/dialog";
 
 export default function ListaVeiculos() {
@@ -24,7 +26,8 @@ export default function ListaVeiculos() {
     
     const [veiculoSelecionado, setVeiculoSelecionado] = useState<Veiculo | null>(null);
     const [modalAberto, setModalAberto] = useState(false);
-    const [campoExemplo, setCampoExemplo] = useState("false");
+    const [dataInicial, setDataInicial] = useState<Date | null>(null);
+    const [dataFinal, setDataFinal] = useState<Date | null>(null);
 
     useEffect(() => {
         if (status === "loading") return;
@@ -211,37 +214,61 @@ export default function ListaVeiculos() {
         </div>
         {veiculoSelecionado && (
             <Dialog open={modalAberto} onOpenChange={setModalAberto}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-2xl w-full p-full">
                 <DialogHeader>
-                    <DialogTitle>Locação {veiculoSelecionado.modelo}</DialogTitle>
+                    <DialogTitle  className="w-full text-center" >
+                        Locação - {veiculoSelecionado.modelo}
+                    </DialogTitle>
                 </DialogHeader>
-                
-                <input
-                type="text"
-                placeholder="Data Inicial"
-                className="w-full border rounded px-2 py-1 mt-2"
-                value={campoExemplo}
-                onChange={(e) => setCampoExemplo(e.target.value)}
-                />
 
-                <input
-                type="text"
-                placeholder="Data Final"
-                className="w-full border rounded px-2 py-1 mt-2"
-                value={campoExemplo}
-                onChange={(e) => setCampoExemplo(e.target.value)}
-                />
+                <div className="mt-6 flex flex-col gap-4">
+                    {/* Data Inicial */}
+                    <div className="flex flex-col w-full">
+                    <label
+                        htmlFor="data-inicial"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >
+                        Data Inicial
+                    </label>
+                    <DatePicker
+                        id="data-inicial"
+                        selected={dataInicial}
+                        onChange={(date: Date | null) => setDataInicial(date)}
+                        className="w-full border rounded px-3 py-2"
+                        dateFormat="dd/MM/yyyy"
+                    />
+                    </div>
+
+                    {/* Data Final */}
+                    <div className="flex flex-col w-full">
+                    <label
+                        htmlFor="data-final"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >
+                        Data Final
+                    </label>
+                    <DatePicker
+                        id="data-final"
+                        selected={dataFinal}
+                        onChange={(date: Date | null) => setDataFinal(date)}
+                        className="w-full border rounded px-3 py-2"
+                        dateFormat="dd/MM/yyyy"
+                        minDate={dataInicial || undefined}
+                    />
+                    </div>
+                </div>
 
                 <DialogFooter className="mt-4">
                 <button
                     className="
                     px-5 py-2 
                     bg-blue-600 
+                    hover:bg-blue-800
+                    rounded-lg
+                    shadow-xl
                     text-white 
                     text-sm font-semibold
-                    rounded-lg
-                    hover:bg-blue-800
-                    shadow-xl "
+                    "
                     onClick={() => setModalAberto(false)}
                 >
                     Concluir Locação
