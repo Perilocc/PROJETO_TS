@@ -20,6 +20,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
+import toast from "react-hot-toast";
 
 export default function ListaVeiculos() {
     const { data: session, status } = useSession();
@@ -68,7 +69,7 @@ export default function ListaVeiculos() {
             setDataInicial(null)
             setDataFinal(null)
             setMetodoPagamento("")
-
+            toast.success("Locação realizada com sucesso!");
         } catch (error) {
             console.error("Erro ao criar reserva:", error);
         }

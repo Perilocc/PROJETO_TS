@@ -13,6 +13,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { loginSchema, type LoginFormData } from "@/schemas/authSchema";
 import { getSession } from "next-auth/react";
+import toast from "react-hot-toast";
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +49,7 @@ export default function Login() {
                 } else {
                     router.push("/veiculos");
                 }
+                toast.success("Login realizada com sucesso!");
             }
         } catch (err: unknown) {
             setError(`"Erro inesperado ao fazer login: ${err as string}'"`);

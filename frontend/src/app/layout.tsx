@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <SessionProvider>
           <ThemeProvider defaultTheme="system" storageKey="locadora-theme">
             {children}
+            <Toaster position="top-right" reverseOrder={false} />
           </ThemeProvider>
         </SessionProvider>
       </body>
