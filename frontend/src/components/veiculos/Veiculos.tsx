@@ -72,6 +72,7 @@ export default function ListaVeiculos() {
             toast.success("Locação realizada com sucesso!");
         } catch (error) {
             console.error("Erro ao criar reserva:", error);
+            toast.error("Houve um erro ao cadastrar uma Nova Reserva!");
         }
     };
 

@@ -5,6 +5,7 @@ import { Veiculo } from "@/types/veiculos";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Lock, Wrench, Truck, ChevronDown, ChevronUp } from "lucide-react";
+import { criarCategoria } from "@/services/categoriaService";
 import {
     Dialog,
     DialogContent,
@@ -27,14 +28,26 @@ export default function Dashboard() {
     const [precoDiaria, setPrecoDiaria] = useState("");
     const podeCriarCategoria = nomeCategoria.trim() !== "" && precoDiaria.trim() !== "" && parseFloat(precoDiaria) > 0;
 
-    const handleCriarCategoria = () => {
-        // Aqui você faria a chamada à API para criar a categoria
-        console.log("Criar categoria:", { nomeCategoria, precoDiaria });
-        
-        setModalCategoriaAberto(false);
-        setNomeCategoria("");
-        setPrecoDiaria("");
-        toast.success("Cadastro de Categoria realizado com sucesso!");
+    const handleCriarCategoria = async () => {
+        if (!nomeCategoria || !precoDiaria) return;
+        if (!session?.user?.id) return;
+
+        try {
+            const categoria = await criarCategoria(
+                nomeCategoria,
+                parseFloat(precoDiaria),
+                session?.user?.token
+            );
+            console.log("Categoria criada:", categoria)
+
+            setModalCategoriaAberto(false);
+            setNomeCategoria("");
+            setPrecoDiaria("");
+            toast.success("Cadastro de Categoria realizado com sucesso!");
+        } catch (error) {
+            console.error("Erro ao criar Categoria:", error);
+            toast.error("Houve um erro ao cadastrar uma Nova Categoria!");
+        }
     };
 
     useEffect(() => {
@@ -48,7 +61,6 @@ export default function Dashboard() {
 
         async function fetchVeiculos() {
             const token = session?.user?.token;
-            console.log("Token de autenticação:", token);
 
             try {
                 const response = await getVeiculos(token as string);
