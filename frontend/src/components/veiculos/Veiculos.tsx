@@ -1,6 +1,7 @@
 "use client";
 
 import { getVeiculos } from "@/services/veiculoService";
+import { Categoria } from "@/types/categorias";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Veiculo } from "@/types/veiculos";
@@ -45,12 +46,19 @@ export default function ListaVeiculos() {
         fetchVeiculos();
     }, [status, session]);
 
-    const categorias = veiculos?.reduce((acc: Record<string, Veiculo[]>, item) => {
-        const nomeCategoria = item.categoria.nome;
-        if (!acc[nomeCategoria]) acc[nomeCategoria] = [];
-        acc[nomeCategoria].push(item);
-        return acc;
-    }, {});
+    const categorias = veiculos?.reduce((acc: Record<string, { categoria: Categoria; lista: Veiculo[] }>, item) => {
+    const nomeCategoria = item.categoria.nome;
+
+    if (!acc[nomeCategoria]) {
+        acc[nomeCategoria] = {
+            categoria: item.categoria,  // <-- agora salva o objeto completo
+            lista: []
+        };
+    }
+
+    acc[nomeCategoria].lista.push(item);
+    return acc;
+}, {});
     
     if (loading) {
         return (
@@ -81,12 +89,19 @@ export default function ListaVeiculos() {
             <h1 className="text-2xl font-bold mb-6">Veículos Disponíveis</h1>
 
             <div className="space-y-10">
-                {Object.entries(categorias).map(([categoria, lista]) => (
+                {Object.entries(categorias).map(([categoria, dados]) => (
                     <div key={categoria}>
-                        <h2 className="text-xl font-semibold mb-4">{categoria}</h2>
+                        <h2 className="text-xl font-semibold mb-4">
+                            {categoria} -{" "}
+                            {new Intl.NumberFormat("pt-BR", {
+                                style: "currency",
+                                currency: "BRL"
+                            }).format(dados.categoria.precoDiaria)}
+                            <span className="text-gray-500 text-base"> /dia</span>
+                        </h2>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {lista.map((veiculo) => (
+                            {dados.lista.map((veiculo) => (
                                 <div
                                     key={veiculo.id}
                                     className="border rounded-lg p-4 shadow hover:shadow-md transition cursor-pointer bg-white dark:bg-gray-900"

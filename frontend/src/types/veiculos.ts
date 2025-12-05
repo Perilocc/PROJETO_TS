@@ -10,6 +10,7 @@ export interface Veiculo {
     categoria: {
         id: number;
         nome: string;
+        precoDiaria: number;
     };
     imagemUrl?: string;
 }
