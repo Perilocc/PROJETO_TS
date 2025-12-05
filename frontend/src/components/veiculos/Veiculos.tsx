@@ -6,6 +6,15 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Veiculo } from "@/types/veiculos";
 import { Lock, Wrench} from "lucide-react"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function ListaVeiculos() {
     const { data: session, status } = useSession();
@@ -13,6 +22,10 @@ export default function ListaVeiculos() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     
+    const [veiculoSelecionado, setVeiculoSelecionado] = useState<Veiculo | null>(null);
+    const [modalAberto, setModalAberto] = useState(false);
+    const [campoExemplo, setCampoExemplo] = useState("false");
+
     useEffect(() => {
         if (status === "loading") return;
         
@@ -181,7 +194,10 @@ export default function ListaVeiculos() {
                                                 shadow-xl 
                                                 cursor-pointer
                                             "
-                                            onClick={() => console.log(`Locar veículo ID ${veiculo.id}`)}
+                                            onClick={() => {
+                                                setVeiculoSelecionado(veiculo);
+                                                setModalAberto(true);
+                                            }}
                                         >
                                             Locar
                                         </button>
@@ -193,6 +209,47 @@ export default function ListaVeiculos() {
                 </div>
             ))}
         </div>
+        {veiculoSelecionado && (
+            <Dialog open={modalAberto} onOpenChange={setModalAberto}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Locação {veiculoSelecionado.modelo}</DialogTitle>
+                </DialogHeader>
+                
+                <input
+                type="text"
+                placeholder="Data Inicial"
+                className="w-full border rounded px-2 py-1 mt-2"
+                value={campoExemplo}
+                onChange={(e) => setCampoExemplo(e.target.value)}
+                />
+
+                <input
+                type="text"
+                placeholder="Data Final"
+                className="w-full border rounded px-2 py-1 mt-2"
+                value={campoExemplo}
+                onChange={(e) => setCampoExemplo(e.target.value)}
+                />
+
+                <DialogFooter className="mt-4">
+                <button
+                    className="
+                    px-5 py-2 
+                    bg-blue-600 
+                    text-white 
+                    text-sm font-semibold
+                    rounded-lg
+                    hover:bg-blue-800
+                    shadow-xl "
+                    onClick={() => setModalAberto(false)}
+                >
+                    Concluir Locação
+                </button>
+                </DialogFooter>
+            </DialogContent>
+            </Dialog>
+        )}
     </div>
     );
 }
