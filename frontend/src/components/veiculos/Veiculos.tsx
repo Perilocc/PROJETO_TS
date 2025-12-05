@@ -110,18 +110,18 @@ export default function ListaVeiculos() {
     }, [status, session]);
 
     const categorias = veiculos?.reduce((acc: Record<string, { categoria: Categoria; lista: Veiculo[] }>, item) => {
-    const nomeCategoria = item.categoria.nome;
+        const nomeCategoria = item.categoria.nome;
 
-    if (!acc[nomeCategoria]) {
-        acc[nomeCategoria] = {
-            categoria: item.categoria,
-            lista: []
-        };
-    }
+        if (!acc[nomeCategoria]) {
+            acc[nomeCategoria] = {
+                categoria: item.categoria,
+                lista: []
+            };
+        }
 
-    acc[nomeCategoria].lista.push(item);
-    return acc;
-}, {});
+        acc[nomeCategoria].lista.push(item);
+        return acc;
+    }, {});
     
     if (loading) {
         return (
