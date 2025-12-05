@@ -110,16 +110,35 @@ export default function Dashboard() {
                 </h1>
 
                 {/* Bem-vindo */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-                    <p className="text-gray-700 dark:text-gray-300">
-                        Bem-vindo, <span className="font-semibold">{session.user.name}</span>!
-                    </p>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">
-                        Email: {session.user.email}
-                    </p>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">
-                        Papel: {session.user.papel}
-                    </p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    {/* Bem-vindo */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <p className="text-gray-700 dark:text-gray-300">
+                            Bem-vindo, <span className="font-semibold">{session.user.name}</span>!
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-400 mt-1">
+                            Email: {session.user.email}
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-400 mt-1">
+                            Papel: {session.user.papel}
+                        </p>
+                    </div>
+
+                    {/* Ações Rápidas */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Ações rápidas</h2>
+                        <div className="flex flex-col gap-3">
+                            <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow py-3 font-semibold transition cursor-pointer">
+                                Criar Veículo
+                            </button>
+                            <button className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow py-3 font-semibold transition cursor-pointer">
+                                Criar Categoria
+                            </button>
+                            <button className="bg-purple-300 hover:bg-purple-400 text-gray-800 rounded-lg shadow py-3 font-semibold transition cursor-pointer">
+                                Gerenciar Usuários
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Cards de resumo */}
@@ -146,7 +165,8 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </div>
-                {/* Cards por categoria*/}
+
+                {/* Veículos por categoria */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Veículos por categoria</h2>
                     <div className="space-y-3">
@@ -189,53 +209,6 @@ export default function Dashboard() {
                         </button>
                     )}
                 </div>
-
-                {/* Seção de ações rápidas */}
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Ações rápidas</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow py-3 font-semibold">
-                        Criar Veículo
-                    </button>
-                    <button className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow py-3 font-semibold">
-                        Criar Categoria
-                    </button>
-                    <button className="bg-purple-300 hover:bg-purple-400 text-gray-800 rounded-lg shadow py-3 font-semibold">
-                        Gerenciar Usuários
-                    </button>
-                </div>
-
-                {/* Tabela resumida de veículos */}
-                {/*<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Veículos recentes</h3>
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b border-gray-300 dark:border-gray-700">
-                                <th className="py-2 px-4 text-gray-700 dark:text-gray-400">Placa</th>
-                                <th className="py-2 px-4 text-gray-700 dark:text-gray-400">Modelo</th>
-                                <th className="py-2 px-4 text-gray-700 dark:text-gray-400">Status</th>
-                                <th className="py-2 px-4 text-gray-700 dark:text-gray-400">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr className="border-b border-gray-200 dark:border-gray-700">
-                                <td className="py-2 px-4 text-gray-700 dark:text-gray-300">ABC-1234</td>
-                                <td className="py-2 px-4 text-gray-700 dark:text-gray-300">Corolla</td>
-                                <td className="py-2 px-4 text-red-500 font-semibold">LOCADO</td>
-                                <td className="py-2 px-4">
-                                    <button className="text-blue-500 hover:underline">Editar</button>
-                                </td>
-                            </tr>
-                            <tr className="border-b border-gray-200 dark:border-gray-700">
-                                <td className="py-2 px-4 text-gray-700 dark:text-gray-300">XYZ-9876</td>
-                                <td className="py-2 px-4 text-gray-700 dark:text-gray-300">Civic</td>
-                                <td className="py-2 px-4 text-green-500 font-semibold">DISPONÍVEL</td>
-                                <td className="py-2 px-4">
-                                    <button className="text-blue-500 hover:underline">Editar</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>*/}
             </div>
         </div>
     );
