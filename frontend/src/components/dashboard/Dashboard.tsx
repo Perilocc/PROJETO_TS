@@ -5,6 +5,14 @@ import { Veiculo } from "@/types/veiculos";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Lock, Wrench, Truck, ChevronDown, ChevronUp } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
+import toast from "react-hot-toast";
 
 export default function Dashboard() {
     const { data: session, status } = useSession();
@@ -12,6 +20,22 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [mostrarTodasCategorias, setMostrarTodasCategorias] = useState(false);
+
+    // Modal Categoria
+    const [modalCategoriaAberto, setModalCategoriaAberto] = useState(false);
+    const [nomeCategoria, setNomeCategoria] = useState("");
+    const [precoDiaria, setPrecoDiaria] = useState("");
+    const podeCriarCategoria = nomeCategoria.trim() !== "" && precoDiaria.trim() !== "" && parseFloat(precoDiaria) > 0;
+
+    const handleCriarCategoria = () => {
+        // Aqui você faria a chamada à API para criar a categoria
+        console.log("Criar categoria:", { nomeCategoria, precoDiaria });
+        
+        setModalCategoriaAberto(false);
+        setNomeCategoria("");
+        setPrecoDiaria("");
+        toast.success("Cadastro de Categoria realizado com sucesso!");
+    };
 
     useEffect(() => {
         if (status === "loading") return;
@@ -131,7 +155,11 @@ export default function Dashboard() {
                             <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow py-3 font-semibold transition cursor-pointer">
                                 Criar Veículo
                             </button>
-                            <button className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow py-3 font-semibold transition cursor-pointer">
+                            <button className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow py-3 font-semibold transition cursor-pointer"
+                                onClick={() => {
+                                    setModalCategoriaAberto(true);
+                                }}
+                            >
                                 Criar Categoria
                             </button>
                             <button className="bg-purple-300 hover:bg-purple-400 text-gray-800 rounded-lg shadow py-3 font-semibold transition cursor-pointer">
@@ -210,6 +238,108 @@ export default function Dashboard() {
                     )}
                 </div>
             </div>
+            {/* Modal Criar Categoria */}
+            {modalCategoriaAberto && (
+                <Dialog 
+                    open={modalCategoriaAberto} 
+                    onOpenChange={(open) => {
+                        setModalCategoriaAberto(open);
+                        if (!open) {
+                            setNomeCategoria("");
+                            setPrecoDiaria("");
+                        }
+                    }}
+                >
+                    <DialogContent className="sm:max-w-md w-full">
+                        <DialogHeader>
+                            <DialogTitle className="w-full text-center">
+                                Criar Nova Categoria
+                            </DialogTitle>
+                        </DialogHeader>
+
+                        <div className="px-6 py-4 flex flex-col gap-4">
+                            {/* Nome da Categoria */}
+                            <div className="flex flex-col w-full">
+                                <label
+                                    htmlFor="nome-categoria"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Nome da Categoria
+                                </label>
+                                <input
+                                    id="nome-categoria"
+                                    type="text"
+                                    value={nomeCategoria}
+                                    onChange={(e) => setNomeCategoria(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    placeholder="Ex: SUV, Sedan, Hatch..."
+                                />
+                            </div>
+
+                            {/* Preço Diária */}
+                            <div className="flex flex-col w-full">
+                                <label
+                                    htmlFor="preco-diaria"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Preço da Diária (R$)
+                                </label>
+                                <input
+                                    id="preco-diaria"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={precoDiaria}
+                                    onChange={(e) => setPrecoDiaria(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    placeholder="150.00"
+                                />
+                            </div>
+
+                            {precoDiaria && parseFloat(precoDiaria) > 0 && (
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    Valor formatado: {new Intl.NumberFormat("pt-BR", {
+                                        style: "currency",
+                                        currency: "BRL"
+                                    }).format(parseFloat(precoDiaria))}
+                                </p>
+                            )}
+                        </div>
+
+                        <DialogFooter>
+                            <button
+                                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-red-200 dark:hover:bg-red-700 rounded-lg transition"
+                                onClick={
+                                    () => {
+                                        setModalCategoriaAberto(false)
+                                        setNomeCategoria("");
+                                        setPrecoDiaria("");
+                                    }
+                                }
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className={`
+                                    px-5 py-2 
+                                    bg-purple-600 
+                                    hover:bg-purple-700
+                                    rounded-lg
+                                    shadow-lg
+                                    text-white 
+                                    text-sm font-semibold
+                                    transition
+                                    ${!podeCriarCategoria ? "opacity-50 cursor-not-allowed hover:bg-purple-600" : ""}
+                                `}
+                                onClick={handleCriarCategoria}
+                                disabled={!podeCriarCategoria}
+                            >
+                                Criar Categoria
+                            </button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     );
 }
