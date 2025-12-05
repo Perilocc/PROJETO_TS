@@ -12,6 +12,7 @@ import { ptBR } from "date-fns/locale/pt-BR";
 import { differenceInDays } from "date-fns";
 import { MetodoPagamento } from "@/types/metodoPagamento";
 import { criarReserva } from "@/services/reservaService";
+import { atualizarStatusVeiculo } from "@/services/veiculoService";
 import {
     Dialog,
     DialogContent,
@@ -51,11 +52,23 @@ export default function ListaVeiculos() {
                 session?.user?.token
             );
             console.log("Reserva criada:", reserva);
+
+            await atualizarStatusVeiculo(
+                veiculoSelecionado.id,
+                "LOCADO",
+                session.user.token
+            );
+
+            setVeiculos((prev) =>
+                prev.map((v) =>
+                    v.id === veiculoSelecionado.id ? { ...v, status: "LOCADO" } : v
+                )
+            );
             setModalAberto(false)
             setDataInicial(null)
             setDataFinal(null)
             setMetodoPagamento("")
-            
+
         } catch (error) {
             console.error("Erro ao criar reserva:", error);
         }

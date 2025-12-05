@@ -1,5 +1,5 @@
 import * as veiculoService from "../services/veiculoService";
-import { createVeiculoSchema } from "../schemas/veiculoSchema";
+import { createVeiculoSchema, updateVeiculoSchema } from "../schemas/veiculoSchema";
 import { getErrorDetails } from "../utils/errorHandlers";
 import { Request, Response } from "express";
 
@@ -45,7 +45,7 @@ export const updateVeiculo = async (req: Request, res: Response) => {
 	if (isNaN(id) || id <= 0) return res.status(400).json({ error: "ID inválido" });
 
 	try {
-		const data = createVeiculoSchema.parse(req.body);
+		const data = updateVeiculoSchema.parse(req.body);
 		const updatedVeiculo = await veiculoService.updateVeiculo(id, data);
 		return res.status(200).json({ message: "Veículo atualizado com sucesso", veiculo: updatedVeiculo });
 	} catch (error: unknown) {
