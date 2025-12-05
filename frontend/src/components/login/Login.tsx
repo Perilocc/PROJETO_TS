@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { loginSchema, type LoginFormData } from "@/schemas/authSchema";
+import { getSession } from "next-auth/react";
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +39,15 @@ export default function Login() {
             if (result?.error) {
                 setError("Email ou senha incorretos");
             } else {
-                router.push("/veiculos");
+                const session = await getSession();
+                const papel = session?.user?.papel;
+                
+                console.log(papel)
+                if (papel == "GERENTE") {
+                    router.push("/dashboard");
+                } else {
+                    router.push("/veiculos");
+                }
             }
         } catch (err: unknown) {
             setError(`"Erro inesperado ao fazer login: ${err as string}'"`);
