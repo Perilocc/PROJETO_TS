@@ -6,6 +6,7 @@ export const createReservaSchema = z.object({
     dataInicio: z.string().length(10, "Data de início obrigatória - Formato: YYYY-MM-DD"),
     dataFim: z.string().length(10, "Data de fim obrigatória - Formato: YYYY-MM-DD"),
     precoTotal: z.number().min(0).positive("Preço total deve ser positivo").optional(),
+    status: z.enum(["PENDENTE", "CONFIRMADA", "CANCELADA", "CONCLUIDA"]).default("CONFIRMADA")
 });
 
 export const updateReservaSchema = z.object({
@@ -14,4 +15,5 @@ export const updateReservaSchema = z.object({
     dataInicio: z.string().min(1).optional(),
     dataFim: z.string().min(1).optional(),
     precoTotal: z.number().min(0).optional(),
+    status: z.enum(["PENDENTE", "CONFIRMADA", "CANCELADA", "CONCLUIDA"]).optional()
 });

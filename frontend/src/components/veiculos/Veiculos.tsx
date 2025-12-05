@@ -8,14 +8,16 @@ import { Veiculo } from "@/types/veiculos";
 import { Lock, Wrench} from "lucide-react"
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { ptBR } from "date-fns/locale/pt-BR";
+import { differenceInDays } from "date-fns";
+import { MetodoPagamento } from "@/types/metodoPagamento";
+import { criarReserva } from "@/services/reservaService";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogFooter,
-    DialogTrigger,
-    DialogDescription,
 } from "@/components/ui/dialog";
 
 export default function ListaVeiculos() {
@@ -28,6 +30,36 @@ export default function ListaVeiculos() {
     const [modalAberto, setModalAberto] = useState(false);
     const [dataInicial, setDataInicial] = useState<Date | null>(null);
     const [dataFinal, setDataFinal] = useState<Date | null>(null);
+    const diasReserva = dataInicial && dataFinal? differenceInDays(dataFinal, dataInicial): 0;
+    const valorTotal = veiculoSelecionado && diasReserva > 0 
+    ? diasReserva * veiculoSelecionado.categoria.precoDiaria 
+    : 0;
+
+    const [metodoPagamento, setMetodoPagamento] = useState<MetodoPagamento | "">("");
+    const podeConcluir = !!dataInicial && !!dataFinal && !!metodoPagamento;
+
+    const handleLocar = async () => {
+        if (!dataInicial || !dataFinal || !metodoPagamento) return;
+        if (!session?.user?.id || !veiculoSelecionado) return;
+
+        try {
+            const reserva = await criarReserva(
+                Number(session.user.id),
+                veiculoSelecionado.id,
+                dataInicial,
+                dataFinal, 
+                session?.user?.token
+            );
+            console.log("Reserva criada:", reserva);
+            setModalAberto(false)
+            setDataInicial(null)
+            setDataFinal(null)
+            setMetodoPagamento("")
+            
+        } catch (error) {
+            console.error("Erro ao criar reserva:", error);
+        }
+    };
 
     useEffect(() => {
         if (status === "loading") return;
@@ -182,7 +214,7 @@ export default function ListaVeiculos() {
                                         {veiculo.status === "LOCADO" && <Lock size={12} />}
                                         {veiculo.status}
                                     </span>
-                                    {/* BOTÃO PARA LOCAR — aparece só se estiver disponível */}
+                                    {/* BOTÃO PARA LOCAR*/}
 
                                     {veiculo.status === "DISPONIVEL" && (
                                         <button
@@ -213,7 +245,19 @@ export default function ListaVeiculos() {
             ))}
         </div>
         {veiculoSelecionado && (
-            <Dialog open={modalAberto} onOpenChange={setModalAberto}>
+            <Dialog 
+                open={modalAberto} 
+                onOpenChange={(open) => {
+                    setModalAberto(open);
+
+                    // Se fechou, limpa os campos
+                    if (!open) {
+                        setDataInicial(null);
+                        setDataFinal(null);
+                        setMetodoPagamento("");
+                    }
+                }}
+            >
             <DialogContent className="sm:max-w-2xl w-full p-full">
                 <DialogHeader>
                     <DialogTitle  className="w-full text-center" >
@@ -236,6 +280,7 @@ export default function ListaVeiculos() {
                         onChange={(date: Date | null) => setDataInicial(date)}
                         className="w-full border rounded px-3 py-2"
                         dateFormat="dd/MM/yyyy"
+                        locale={ptBR}
                     />
                     </div>
 
@@ -254,22 +299,55 @@ export default function ListaVeiculos() {
                         className="w-full border rounded px-3 py-2"
                         dateFormat="dd/MM/yyyy"
                         minDate={dataInicial || undefined}
+                        locale={ptBR}
                     />
                     </div>
                 </div>
 
+                <div className="mt-4 flex flex-col w-full">
+                    <label
+                        htmlFor="metodo-pagamento"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >
+                        Método de Pagamento
+                    </label>
+                    <select
+                        id="metodo-pagamento"
+                        value={metodoPagamento}
+                        onChange={(e) => setMetodoPagamento(e.target.value as MetodoPagamento)}
+                        className="w-full border rounded px-3 py-2 bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+                    >
+                        <option value="">Selecione</option>
+                        <option value="CARTAO_CREDITO">Cartão de Crédito</option>
+                        <option value="CARTAO_DEBITO">Cartão de Débito</option>
+                        <option value="PIX">PIX</option>
+                        <option value="DINHEIRO">Dinheiro</option>
+                    </select>
+                </div>
+
+                {diasReserva > 0 && veiculoSelecionado && (
+                    <p className="mt-2 text-gray-700 dark:text-gray-300">
+                        Total da locação: {new Intl.NumberFormat("pt-BR", {
+                            style: "currency",
+                            currency: "BRL"
+                        }).format(valorTotal)}
+                    </p>
+                )}
+
                 <DialogFooter className="mt-4">
                 <button
-                    className="
-                    px-5 py-2 
-                    bg-blue-600 
-                    hover:bg-blue-800
-                    rounded-lg
-                    shadow-xl
-                    text-white 
-                    text-sm font-semibold
-                    "
-                    onClick={() => setModalAberto(false)}
+                    className={`
+                        px-5 py-2 
+                        bg-blue-600 
+                        hover:bg-blue-800
+                        rounded-lg
+                        shadow-xl
+                        text-white 
+                        text-sm font-semibold
+                        ${!podeConcluir ? "opacity-50 cursor-not-allowed hover:bg-blue-600" : ""}
+                    `}
+                    onClick={handleLocar}
+                    disabled={!podeConcluir}
                 >
                     Concluir Locação
                 </button>

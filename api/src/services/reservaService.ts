@@ -1,6 +1,6 @@
 import prisma from "../db/prisma";
 import { differenceInDays } from "date-fns";
-import { Reserva } from "../generated/prisma";
+import { Reserva, StatusReserva } from "../generated/prisma";
 
 export const getAllreservas = async (): Promise<Reserva[]> => {
   return prisma.reserva.findMany({
@@ -20,6 +20,7 @@ export const createReserva = async (
   veiculoId: number,
   dataInicio: string,
   dataFim: string,
+  status: StatusReserva
 ): Promise<Reserva> => {
   const veiculo = await prisma.veiculo.findUnique({
     where: { id: veiculoId },
@@ -47,6 +48,7 @@ export const createReserva = async (
       dataInicio: new Date(dataInicio),
       dataFim: new Date(dataFim),
       precoTotal,
+      status
     },
     include: { usuario: true, veiculo: true }
   });
