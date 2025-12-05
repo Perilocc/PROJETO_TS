@@ -88,11 +88,14 @@ export default function ListaVeiculos() {
     return (
     <div className="w-full px-6 py-10">
         <h1 className="text-3xl font-bold mb-10 text-gray-900 dark:text-white">
-            Veículos Disponíveis
+            Frota de Veículos
         </h1>
 
         <div className="space-y-12">
-            {Object.entries(categorias).map(([categoria, dados]) => (
+            {Object.entries(categorias)
+                    .sort(([, a], [, b]) => a.categoria.precoDiaria - b.categoria.precoDiaria)
+                    .map(([categoria, dados] 
+                ) => (
                 <div key={categoria} className="space-y-4">
                     
                     {/* Cabeçalho da Categoria */}
@@ -112,6 +115,7 @@ export default function ListaVeiculos() {
 
                     {/* Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        {/*flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory - carrosel*/}
                         {dados.lista.map((veiculo) => (
                             <div
                                 key={veiculo.id}
@@ -133,7 +137,7 @@ export default function ListaVeiculos() {
 
                                 {/* Título */}
                                 <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                                    {`${veiculo.marca} ${veiculo.modelo}`}
+                                    {`${veiculo.marca} - ${veiculo.modelo}`}
                                 </h3>
 
                                 {/* Infos */}
@@ -173,8 +177,8 @@ export default function ListaVeiculos() {
                                                 text-sm font-semibold
                                                 rounded-lg
                                                 bg-blue-600 text-white
-                                                hover:bg-blue-700
-                                                transition shadow
+                                                hover:bg-blue-800
+                                                shadow-xl 
                                                 cursor-pointer
                                             "
                                             onClick={() => console.log(`Locar veículo ID ${veiculo.id}`)}
