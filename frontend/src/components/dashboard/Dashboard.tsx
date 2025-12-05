@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Lock, Wrench, Truck, ChevronDown, ChevronUp } from "lucide-react";
 import { criarCategoria, getCategorias } from "@/services/categoriaService";
 import { criarVeiculo } from "@/services/veiculoService";
+import { getClientes } from "@/services/authService";
 import {
     Dialog,
     DialogContent,
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
 import { Categoria } from "@/types/categorias";
+import { Usuario } from "@/types/usuario";
 
 export default function Dashboard() {
     const { data: session, status } = useSession();
@@ -105,6 +107,11 @@ export default function Dashboard() {
         }
     };
 
+    // Modal de Clientes
+    const [clientes,  setClientes] = useState<Usuario[]>([]);
+    const [modalClientesAberto, setModalClientesAberto] = useState(false);
+    const [loadingClientes, setLoadingClientes] = useState(false);
+
     useEffect(() => {
         if (status === "loading") return;
         
@@ -139,9 +146,34 @@ export default function Dashboard() {
             const catgs = await getCategorias(session.user.token);
             setCategorias(catgs.categorias);
         };
+
+        const fetchClientes = async () => {
+            console.log("🚀 Iniciando busca de clientes...");
+            setLoadingClientes(true);
+            try {
+                const response = await getClientes(session.user.token);
+                console.log(response);
+                const usuarios = response.users;
+                const clientesFiltrados = usuarios.reduce((acc: Usuario[], user: Usuario) => {
+                    if (user.papel === "CLIENTE") {
+                        acc.push(user);
+                    }
+                    return acc;
+                }, []);
+                
+                console.log("✅ Clientes filtrados:", clientesFiltrados);
+                setClientes(clientesFiltrados);
+            } catch (error) {
+                console.error("❌ Erro ao buscar clientes:", error);
+                setClientes([]);
+            } finally {
+                setLoadingClientes(false);
+            }
+        };
         
         fetchVeiculos();
         fetchCategorias();
+        fetchClientes()
     }, [status, session]);
 
     const resumoVeiculos = veiculos.reduce(
@@ -238,7 +270,11 @@ export default function Dashboard() {
                             >
                                 Criar Categoria
                             </button>
-                            <button className="bg-purple-300 hover:bg-purple-400 text-gray-800 rounded-lg shadow py-3 font-semibold transition cursor-pointer">
+                            <button className="bg-purple-300 hover:bg-purple-400 text-gray-800 rounded-lg shadow py-3 font-semibold transition cursor-pointer"
+                                onClick={() => {
+                                    setModalClientesAberto(true);
+                                }}
+                            >
                                 Gerenciar Usuários
                             </button>
                         </div>
@@ -587,6 +623,63 @@ export default function Dashboard() {
                                 disabled={!podeCriarVeiculo}
                             >
                                 Criar Veículo
+                            </button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            )}
+            {/* Modal Listar Clientes */}
+            {modalClientesAberto && (
+                <Dialog 
+                    open={modalClientesAberto} 
+                    onOpenChange={(open) => setModalClientesAberto(open)}
+                >
+                    <DialogContent className="sm:max-w-4xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+                        <DialogHeader>
+                            <DialogTitle className="w-full text-center">
+                                Lista de Clientes
+                            </DialogTitle>
+                        </DialogHeader>
+
+                        <div className="px-6 py-4 flex-1 overflow-y-auto">
+                            {loadingClientes ? (
+                                <div className="flex items-center justify-center py-12">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                                </div>
+                            ) : clientes.length === 0 ? (
+                                <div className="text-center py-12">
+                                    <p className="text-gray-500 dark:text-gray-400">Nenhum cliente encontrado</p>
+                                </div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="border-b-2 border-gray-300 dark:border-gray-700">
+                                                <th className="py-3 px-4 text-gray-700 dark:text-gray-300 font-semibold">ID</th>
+                                                <th className="py-3 px-4 text-gray-700 dark:text-gray-300 font-semibold">Nome</th>
+                                                <th className="py-3 px-4 text-gray-700 dark:text-gray-300 font-semibold">Email</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {clientes.map((cliente) => (
+                                                <tr key={cliente.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                                    <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{cliente.id}</td>
+                                                    <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{cliente.nome}</td>
+                                                    <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{cliente.email}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+
+                        <DialogFooter>
+                            <button
+                                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition"
+                                onClick={() => setModalClientesAberto(false)}
+                            >
+                                Fechar
                             </button>
                         </DialogFooter>
                     </DialogContent>
