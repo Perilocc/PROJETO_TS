@@ -5,6 +5,7 @@ import { Categoria } from "@/types/categorias";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Veiculo } from "@/types/veiculos";
+import { Lock, Wrench} from "lucide-react"
 
 export default function ListaVeiculos() {
     const { data: session, status } = useSession();
@@ -85,56 +86,88 @@ export default function ListaVeiculos() {
     }
 
     return (
-        <div className="w-full px-6 py-8">
-            <h1 className="text-2xl font-bold mb-6">Veículos Disponíveis</h1>
+    <div className="w-full px-6 py-10">
+        <h1 className="text-3xl font-bold mb-10 text-gray-900 dark:text-white">
+            Veículos Disponíveis
+        </h1>
 
-            <div className="space-y-10">
-                {Object.entries(categorias).map(([categoria, dados]) => (
-                    <div key={categoria}>
-                        <h2 className="text-xl font-semibold mb-4">
-                            {categoria} -{" "}
+        <div className="space-y-12">
+            {Object.entries(categorias).map(([categoria, dados]) => (
+                <div key={categoria} className="space-y-4">
+                    
+                    {/* Cabeçalho da Categoria */}
+                    <div className="flex items-center justify-between border-b pb-2">
+                        <h2 className="text-2xl font-semibold">
+                            {categoria}
+                        </h2>
+
+                        <span className="text-lg font-medium text-gray-600 dark:text-gray-300">
                             {new Intl.NumberFormat("pt-BR", {
                                 style: "currency",
                                 currency: "BRL"
                             }).format(dados.categoria.precoDiaria)}
                             <span className="text-gray-500 text-base"> /dia</span>
-                        </h2>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {dados.lista.map((veiculo) => (
-                                <div
-                                    key={veiculo.id}
-                                    className="border rounded-lg p-4 shadow hover:shadow-md transition cursor-pointer bg-white dark:bg-gray-900"
-                                >
-                                    <div className="w-full h-32 bg-gray-100 dark:bg-gray-800 rounded mb-3 flex items-center justify-center">
-                                        {veiculo.imagemUrl ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                                src={veiculo.imagemUrl}
-                                                alt={`${veiculo.marca} ${veiculo.modelo}`}
-                                                className="h-full object-cover rounded"
-                                            />
-                                        ) : (
-                                            <span className="text-gray-500 text-sm">Sem imagem</span>
-                                        )}
-                                    </div>
-
-                                    <h3 className="font-semibold text-lg">{`${veiculo.marca} ${veiculo.modelo}`}</h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Placa: {veiculo.placa}</p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Ano: {veiculo.ano}</p>
-                                    <span className={`inline-block mt-2 px-2 py-1 text-xs rounded ${
-                                        veiculo.status === 'disponivel' 
-                                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                                    }`}>
-                                        {veiculo.status}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
+                        </span>
                     </div>
-                ))}
-            </div>
+
+                    {/* Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        {dados.lista.map((veiculo) => (
+                            <div
+                                key={veiculo.id}
+                                className="border rounded-xl p-4 shadow-sm hover:shadow-lg transition hover:-translate-y-1 cursor-pointer bg-white dark:bg-gray-900"
+                            >
+                                {/* Imagem */}
+                                <div className="w-full h-36 bg-gray-100 dark:bg-gray-800 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                                    {veiculo.imagemUrl ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={veiculo.imagemUrl}
+                                            alt={`${veiculo.marca} ${veiculo.modelo}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="text-gray-500 text-sm">Sem imagem</span>
+                                    )}
+                                </div>
+
+                                {/* Título */}
+                                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                                    {`${veiculo.marca} ${veiculo.modelo}`}
+                                </h3>
+
+                                {/* Infos */}
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Placa: <span className="font-medium">{veiculo.placa}</span>
+                                </p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    Ano: <span className="font-medium">{veiculo.ano}</span>
+                                </p>
+
+                                {/* Status */}
+                                <span
+                                    className={`
+                                        inline-flex items-center gap-1 mt-3 px-2 py-1 text-xs rounded-full font-semibold uppercase tracking-wide
+                                        ${
+                                            veiculo.status === "DISPONIVEL"
+                                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                            : veiculo.status === "LOCADO"
+                                                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                        }
+                                    `}
+                                >
+                                    {veiculo.status === "DISPONIVEL" && null}
+                                    {veiculo.status === "LOCADO" && <Lock size={12} />}
+                                    {veiculo.status === "MANUTENCAO" && <Wrench size={12} />}
+                                    {veiculo.status}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
         </div>
+    </div>
     );
 }
